@@ -8,14 +8,15 @@ describe 'simp_nfs stock classes' do
   ldap_server = only_host_with_role(hosts, '389ds')
   ldap_server_fqdn = fact_on(ldap_server, 'fqdn')
 
-  _domains = fact_on(ldap_server, 'domain').split('.')
-  _domains.map! do |d|
+  facter_found_domains = fact_on(ldap_server, 'domain').split('.')
+  facter_found_domains.map! do |d|
     "dc=#{d}"
   end
-  domains = _domains.join(',')
+  domains = facter_found_domains.join(',')
   common_hieradata = File.read(File.expand_path('files/common_hieradata.yaml.erb', File.dirname(__FILE__)))
 
   context 'setup 389ds ldap server ' do
+    # rubocop:disable RSpec/IndexedLet
     let(:test_user1)       { 'test.user' }
     let(:test_user2)       { 'monster.user' }
     let(:root_pw)          { 'suP3rP@ssw0r!' }
@@ -24,6 +25,7 @@ describe 'simp_nfs stock classes' do
     let(:hieradata)        { common_hieradata.to_s + "\n#{server_hieradata}" }
     let(:add_testuser)     { File.read(File.expand_path("files/#{ldap_type}/add_testuser.erb", File.dirname(__FILE__))) }
     let(:ds_root_name)     { 'accounts' }
+    # rubocop:enable RSpec/IndexedLet
 
     it 'install,s 389ds accounts instance' do
       server_manifest = <<-EOM
